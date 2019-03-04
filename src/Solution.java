@@ -2,47 +2,42 @@ import java.io.*;
 import java.util.*;
 
 public class Solution {
-    private ArrayList<Photo> photos = new ArrayList();
-    private ArrayList<Slide> slides = new ArrayList();
-    private ArrayList<Slide> sorted = new ArrayList();
-    public int index;
+    private ArrayList<Photo> photos = new ArrayList();//get photos from txt files
+    private ArrayList<Slide> slides = new ArrayList();//for storing greedy-style formed slides
+    private ArrayList<Slide> sorted = new ArrayList();//for storing optimised-order slides
     private static String[] files={"a_example","b_lovely_landscapes","c_memorable_moments","d_pet_pictures","e_shiny_selfies"};
-    //private static String[] files={"d_pet_pictures","e_shiny_selfies"};
     public static void main(String[] args) {
         for(String s:files)
         {
-            String input_file="C:\\Users\\Mohamad\\Desktop\\HashcodeJava\\"+s+".txt";
-            String output_file="C:\\Users\\Mohamad\\Desktop\\HashcodeJava\\output"+s.charAt(0)+".txt";
+            String input_file="C:\\Users\\...\\"+s+".txt";//replace with appropriate directory
+            String output_file="C:\\Users\\...\\output"+s.charAt(0)+".txt";//replace with appropriate directory
             Solution sol = new Solution(input_file,output_file);
         }
-        /*String input_file="C:\\Users\\Mohamad\\Desktop\\HashcodeJava\\b_lovely_landscapes.txt";
-        String output_file="C:\\Users\\Mohamad\\Desktop\\HashcodeJava\\outputb.txt";
-        Solution sol = new Solution(input_file,output_file);*/
     }
 
     public Solution(String input_file,String output_file    ) {
-        /* reading in */
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(input_file));
             int photoNum = Integer.parseInt(br.readLine());
+		//read in photos
             for (int i = 0; i < photoNum; i++) {
                 String[] line = br.readLine().split(" ");
                 Photo temp = new Photo();
                 temp.setId(i);      // sets PHOTO ID
                 if (line[0].equals("H")) temp.setHorizontal(true);
                 else temp.setHorizontal(false);
-                // sets the tagNum
+                // sets the number of tags
                 temp.setTagNum(Integer.parseInt(line[1]));
-                //
+
                 for (int j = 0; j < Integer.parseInt(line[1]); j++) {
                     temp.addArray(line[2 + j]);
                 }
                 photos.add(temp);
             }
 
-            Collections.sort(photos,new SortByOrient());
-            int index = 0;
+            Collections.sort(photos,new SortByOrient());//sorts photos by orientation
+            int index = 0;//used to assign an id for each slide created
             for (int i = 0; i < photoNum; i++) {
                 Slide temp = new Slide();
 
@@ -71,14 +66,23 @@ public class Solution {
                 index++;
                 slides.add(temp);
             }
-            Collections.sort(slides,new SortByTagNum());
+
+            Collections.sort(slides,new SortByTagNum());//sort slide by number of tags
+
             for(int x=0;x<slides.size();x++)
             {
                 slides.get(x).setId(x);
-            }
-            int start=0;
-            int end=9999;
+            }//changes id of each slide to bee in order
+
+            int start=0;//index of first slide in first bucket
+            int end=9999;//index of last slide in first bucket;might not be used if N<end
+
             ArrayList<ArrayList<Slide>> buckets = new ArrayList();
+		//break slides into several array lists (buckets) to accommodate heap space limits
+		//each array list will be of size 10,000. Until the leftover slides are less
+		//Then leave the leftovers as an arraylist
+		//note: The larger the bucket,the higher the score (generally). But processing time increases as well.
+
             while(end!=slides.size())
             {
                 if(end<slides.size()-1)
@@ -109,12 +113,12 @@ public class Solution {
                 {
                     temp.get(x).setId(x);
                 }
-            }
+            }//sets id of each slide according to its position in respective bucket
 
             for(ArrayList<Slide> temp:buckets)
             {
                 dynamicProgramming(temp);
-            }
+            }//optimises slide order in each bucket
 
             printToFile(output_file);
         } catch (FileNotFoundException e) {
@@ -123,24 +127,22 @@ public class Solution {
             System.out.println(e);
         }
 
-        /* Writing to file */
-        //sortSlide(slides);
     }
 
     public void dynamicProgramming(ArrayList<Slide> input)
     {
-        int [][] scores = new int[input.size()][input.size()];
-        int[] used=new int[input.size()];
-        int max=0;
-        int maxI=0;
-        int maxJ=0;
+        int [][] scores = new int[input.size()][input.size()];//stores scores instead of recalculating each time
+        int[] used=new int[input.size()];//stores indexes of used slides (i.e ones already optimised)
+        int max=0;//maximum score,to decide which pair of slides are to be the first
+        int maxI=0;//id of the first slide out of the first to-be pair
+        int maxJ=0;//id of the second slide out of the first to-be pair
 
         for(int i=0;i<input.size();i++)
         {
             for(int j=i;j<input.size();j++)
             {
                 if(i==j)
-                {
+                {//diagonal
                     scores[i][j]=0;
                     scores[j][i]=0;
                 }else
@@ -149,7 +151,7 @@ public class Solution {
                         for(String temp:input.get(i).getTags())
                         {
                             tags_1.add(temp);
-                        }
+                        }//loop used to avoid changin original value as Java uses pass-by-reference and not value
                         tags_1.retainAll(input.get(j).getTags());
                         int common = tags_1.size();
                         int only_first=input.get(i).getTags().size()-common;
@@ -169,20 +171,18 @@ public class Solution {
         sorted.add(input.get(maxJ));
         used[maxI]=1;
         used[maxJ]=1;
-        while(Arrays.stream(used).sum()!=used.length)
+        while(Arrays.stream(used).sum()!=used.length)//the goal is to get all indexes to have value of 1 i.e all slides used
         {
             addPath(scores,used,input);
         }
-
-
     }
 
     public void addPath(int[][] input,int[] used,ArrayList<Slide> bucket)
-    {   int max=0;
-        int currentI=sorted.get(sorted.size()-1).getId();
+    {   int max=0;//will store current maximum next transition score
+        int currentI=sorted.get(sorted.size()-1).getId();//id of last pushed slide
         int maxJ=-1;
 
-            for(int j=0;j<input.length;j++)
+            for(int j=0;j<input.length;j++)//looks for the best next slide to attach
             {
                 if(currentI==j)
                 {
@@ -212,6 +212,7 @@ public class Solution {
             }
 
     }
+
     public int getLeast(int a,int b,int c)
     {
         if(a<b)
@@ -231,6 +232,7 @@ public class Solution {
                 return c;
             }
     }
+
     public void printToFile(String input)
     {
         try {

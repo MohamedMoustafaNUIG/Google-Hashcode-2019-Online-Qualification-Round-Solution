@@ -4,7 +4,15 @@ public class Slide {
 
     private ArrayList<String> tags = new ArrayList();
     private ArrayList<Photo> photos= new ArrayList();
-
+    private int top;
+    private boolean used;
+    private int id;
+    
+    public Slide() {
+        top=0;
+        used=false;
+    }
+    
     public int getTop() {
         return top;
     }
@@ -12,8 +20,6 @@ public class Slide {
     public void setTop(int top) {
         this.top = top;
     }
-
-    private int top = 0;
 
     public boolean isUsed() {
         return used;
@@ -23,20 +29,12 @@ public class Slide {
         this.used = used;
     }
 
-    private boolean used=false;
-
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    private int id;
-
-    public Slide() {
-
     }
 
     public void addPhoto(Photo input) {

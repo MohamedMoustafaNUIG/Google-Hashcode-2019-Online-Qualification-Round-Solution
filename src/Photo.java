@@ -1,19 +1,18 @@
 import java.util.ArrayList;
 
 public class Photo {
-    public int top = 0;
+    public int top;
     private boolean horizontal;
     private int tagNum;
     private ArrayList<String> tags= new ArrayList(tagNum);
-    private boolean used = false;
+    private boolean used;
     private int id;
 
-
-
-    // constructor
     public Photo() {
+        top=0;
         horizontal = true;
         tagNum = 0;
+        used=false;
     }
 
     public void addArray(String item) {
