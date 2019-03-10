@@ -75,7 +75,7 @@ public class Solution {
             }//changes id of each slide to bee in order
 
             int start=0;//index of first slide in first bucket
-            int end=9999;//index of last slide in first bucket;might not be used if N<end
+            int end=14999;//index of last slide in first bucket;might not be used if N<end
 
             ArrayList<ArrayList<Slide>> buckets = new ArrayList();
 		//break slides into several array lists (buckets) to accommodate heap space limits
@@ -93,8 +93,8 @@ public class Solution {
                         temp.add(slides.get(y));
                     }
                     buckets.add(temp);
-                    start+=10000;
-                    end+=10000;
+                    start+=15000;
+                    end+=15000;
                 }else
                     {
                         ArrayList<Slide> temp = new ArrayList();
