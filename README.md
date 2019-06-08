@@ -32,6 +32,3 @@ A Dynamic Programming approach was taken to try and get the best possible order 
 3)Then, until all slides are used, find the slide with the highest transition score (between it and the last pushed slide).
 
 4)Go over all the "buckets" while pushing the optimised order into a large "sorted" Array List
-
-## Note
-Other approaches (using simulated annealing and ordering the photos first) are being worked on.
